@@ -35,7 +35,7 @@ $di->setShared('session', function(){
 
 $di->set('modelsCache', function() {
 	$frontCache = new \Phalcon\Cache\Frontend\Data(array(
-		'lifetime' => 0,//3600
+		'lifetime' => 3600
 	));
 
 	//File cache settings

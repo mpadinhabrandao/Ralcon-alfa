@@ -74,33 +74,4 @@ class RESTBaseController extends \PhalconRest\Controllers\RESTController{
 		}
 	}
 
-	public function respondParams($model, $array = array(), $prefix = ''){
-		
-		if( !empty($prefix) ) $prefix = trim($prefix, '.').'.';
-		$attributes = $model->getModelsMetaData()->getAttributes($model);
-		
-		if( !empty($this->partialFields) ){
-			$array['columns'] = $prefix.implode(
-						', '.$prefix, 
-						array_intersect($attributes, $this->partialFields)
-						);
-		}
-		if( isset($this->limit) && $this->limit >0 )
-			$array['limit'] = $this->limit;
-			
-		if( isset($this->offset) && $this->offset >0 )
-			$array['offset'] = $this->offset;
-		if( count($this->searchFields) ) {
-			foreach ($this->searchFields as $field => $value) {
-				$array['conditions'] =	( empty($array['conditions']) ) ? 
-							"$prefix$field = :$field:" : 
-							"{$array['conditions']} AND $prefix$field = :$field:";
-				$array['bind'][$field] = $value;
-			}
-		}
-		if( !empty($this->orders) ){
-			$array['order'] = implode($this->orders);
-		}
-		return $array;		
-	}
 }

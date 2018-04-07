@@ -115,6 +115,7 @@ class RESTController extends \Phalcon\DI\Injectable{
 		$unparsed = explode(',', $unparsed);
 		$arr = array();	
 		foreach($unparsed as $cell){
+            $cell = trim($cell);
 			if ( strpos($cell,'-')===0 ){
 				$cell = ltrim($cell,'-');
 				$dir = 'DESC';
@@ -258,6 +259,35 @@ class RESTController extends \Phalcon\DI\Injectable{
 		} catch ( \Exception $e ) {
 			throw new HTTPException($e->getMessage(),404,array('internalCode' => $e->getCode()));
 		}
+	}
+	public function respondParams($model, $array = array(), $prefix = ''){
+		
+		if( !empty($prefix) ) $prefix = trim($prefix, '.').'.';
+		$attributes = $model->getModelsMetaData()->getAttributes($model);
+		
+		if( !empty($this->partialFields) ){
+			$array['columns'] = $prefix.implode(
+						', '.$prefix, 
+						array_intersect($attributes, $this->partialFields)
+						);
+		}
+		if( isset($this->limit) && $this->limit >0 )
+			$array['limit'] = $this->limit;
+			
+		if( isset($this->offset) && $this->offset >0 )
+			$array['offset'] = $this->offset;
+		if( count($this->searchFields) ) {
+			foreach ($this->searchFields as $field => $value) {
+				$array['conditions'] =	( empty($array['conditions']) ) ? 
+							"$prefix$field = :$field:" : 
+							"{$array['conditions']} AND $prefix$field = :$field:";
+				$array['bind'][$field] = $value;
+			}
+		}
+		if( !empty($this->orders) ){
+			$array['order'] = implode($this->orders);
+		}
+		return $array;		
 	}
 
 }
