@@ -1,36 +1,41 @@
 <?php 
 //echo "Hi! :D";
-define('CORE_DIR',__DIR__);
+define('CORE_DIR', __DIR__);
 
 use Phalcon\Logger;
 use Phalcon\Events\Event;
 use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Logger\Adapter\File as FileLogger;
 
-use 	Phalcon\DI\FactoryDefault as DefaultDI,
+use Phalcon\DI\FactoryDefault as DefaultDI,
 	Phalcon\Mvc\Micro\Collection,
 	Phalcon\Config\Adapter\Ini as IniConfig,
 	Phalcon\Loader;
 
 
 if( !is_array($loaderList) ) $loaderList = array();
-$loaderList['PhalconRest'] = CORE_DIR."/";
+$loaderList['Utils'] = CORE_DIR . "/Utils/";
+$loaderList['PhalconRest'] = CORE_DIR . "/";
+$loaderList['Phalcon'] = CORE_DIR . '/Libs/';
 
 $loader = new Loader();
 $loader->registerNamespaces($loaderList)->register();
 
 $di = new DefaultDI();
 $di->set('collections', function(){
-	return include(CORE_DIR.'/routeLoader.php');
+	return include(CORE_DIR . '/routeLoader.php');
 });
 
 $di->setShared('config', function() {
-	return new IniConfig(ROOT_DIR."/config.ini");
+	return new IniConfig(ROOT_DIR . "/config.ini");
 });
 $di->setShared('session', function(){
 	$session = new \Phalcon\Session\Adapter\Files();
 	$session->start();
 	return $session;
+});
+$di->setShared('utils', function() {
+	return new \Utils\Utils();
 });
 
 $di->set('modelsCache', function() {
@@ -88,6 +93,17 @@ $di->setShared('requestBody', function() {
 	}
 
 	return $in;
+});
+
+/**
+ * Shared logger.
+ */
+$di->setShared('logger', function() {
+	$logger = new FileLogger('/var/log/nginx/site/debug.log');
+	$logger->setLogLevel(
+		Logger::DEBUG
+	);
+	return $logger;
 });
 
 $app = new Phalcon\Mvc\Micro();

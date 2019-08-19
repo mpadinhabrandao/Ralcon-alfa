@@ -5,6 +5,11 @@ use \PhalconRest\Exceptions\HTTPException;
 class RESTBaseController extends \PhalconRest\Controllers\RESTController{
 
 	protected $primaryKey = 'id';
+	protected $logger;
+
+	public function __construct() {
+		$this->logger = \Phalcon\DI::getDefault()->get('logger');
+	}
 	
 	public function get(){
 		$list = array();
@@ -19,7 +24,7 @@ class RESTBaseController extends \PhalconRest\Controllers\RESTController{
 
 	public function getOne($id){
 
-	        $array = array();	
+	    $array = array();	
 		$array['conditions'] = "{$this->primaryKey} = :{$this->primaryKey}:";
 		$array['bind'][$this->primaryKey] = $id;
 
@@ -35,18 +40,18 @@ class RESTBaseController extends \PhalconRest\Controllers\RESTController{
 	
 
 
-	public function post(){
-		return $this->save($this->model);
+	public function post($data = null){
+		return $this->save($this->model, $data);
 	}
 
-	public function put($id){
+	public function put($id, $data = null){
 		
 		$array['conditions'] = "{$this->primaryKey} = :{$this->primaryKey}:";
 		$array['bind'][$this->primaryKey] = $id;
 		
 		$itm = $this->model->findFirst($array);
 		if( $itm ){
-			return $this->save($itm);
+			return $this->save($itm, $data);
 		}else{
 			throw new HTTPException("Item not found",404,array('internalCode' => "100002"));
 		}

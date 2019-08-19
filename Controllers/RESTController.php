@@ -245,7 +245,7 @@ class RESTController extends \Phalcon\DI\Injectable{
 	public function save($model, $data = null){
 		
 		$request = new Request();
-		if( is_null($data) ) $data = $request->getPost();
+		if( is_null($data) ) $data = $request->getJsonRawBody();
 		try {
 			if($model->save($data)){
 				return $model->toArray();

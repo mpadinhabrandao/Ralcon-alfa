@@ -4,9 +4,9 @@ namespace PhalconRest\Models;
 
 use \PhalconRest\Exceptions\HTTPException;
 
-class RESTModel extends \Phalcon\Mvc\Model{
+class RESTModel extends Model{
 
-        public function save($data = NULL, $whiteList = NULL){
+    public function save($data = NULL, $whiteList = NULL){
 		try{	
 			if(parent::save($data)){
 				return $this;
@@ -26,6 +26,6 @@ class RESTModel extends \Phalcon\Mvc\Model{
 		} catch ( \PDOException $e ) {
 			throw new HTTPException($e->getMessage(),404,array('internalCode' => $e->getCode()));
 		}
-        }
+    }
 
 }
